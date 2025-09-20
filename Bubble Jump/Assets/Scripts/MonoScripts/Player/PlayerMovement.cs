@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector2 moveDirection;
 
-
+    [SerializeField] private Menus menus;
 
     // Public
 
@@ -28,6 +28,14 @@ public class PlayerMovement : MonoBehaviour
         moveAction = playerInput.currentActionMap.FindAction("Move");
         jumpAction = playerInput.currentActionMap.FindAction("Jump");
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Start()
+    {
+        if (playerInput != null)
+        {
+            playerInput.ActivateInput();
+        }
     }
 
     private void FixedUpdate()
@@ -50,7 +58,7 @@ public class PlayerMovement : MonoBehaviour
     private void Movements()
     {
         moveDirection = moveAction.ReadValue<Vector2>();
-        rb.velocity = new Vector2(moveDirection.x * moveSpeed * 100 * Time.deltaTime, rb.velocity.y);
+        rb.velocity = new Vector2(moveDirection.x * moveSpeed, rb.velocity.y);
 
     }
 
@@ -58,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (IsGrounded())
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpHeight * 100 * Time.deltaTime);
+            rb.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
         }
     }
 
@@ -67,5 +75,13 @@ public class PlayerMovement : MonoBehaviour
         return Physics2D.OverlapCapsule(groundCheck.position, new Vector2(1f, 0.5f), CapsuleDirection2D.Horizontal, 0, groundLayer);
     }
 
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "BottomCollider")
+        {
+            menus.GameOver();
+        }
+    }
 
 }
